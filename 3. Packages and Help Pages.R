@@ -46,3 +46,23 @@ replicate (10,roll())
 rolls <- replicate(10000, roll())
 qplot(rolls, binwidth=1)
 
+# 3.2 Getting Help with Help Pages
+
+?sqrt
+?sample
+
+# If you'd like to look up the help page for a function but have forgotten the function's name,
+# you can search by keyword.
+??log
+
+# Function roll with diferente probability
+roll <- function(){
+  die <- 1:6
+  dice <- sample(die, size = 2, replace = TRUE, 
+                 prob = c(1/8, 1/8, 1/8, 1/8, 1/8, 3/8))
+  sum(dice)
+}
+
+rolls <- replicate(10000, roll())
+qplot(rolls, binwidth = 1)
+
