@@ -183,6 +183,70 @@ unname(payouts["DD"])
 # use an if tree if each branch of the tree runs different code. Use a lookup table if each 
 # branch of the tree only assigns a different value.
 
+# 10 S3
+
+# 10.1 The S3 System
+
+# R’s S3 system is built around three components: attributes (especially the class attribute),
+# generic functions, and methods.
+
+# 10.2 Attributes
+
+# In Attributes, you learned that many R objects come with attributes, pieces of extra 
+# information that are given a name and appended to the object. Attributes do not affect the
+# values of the object, but stick to the object as a type of metadata that R can use to handle 
+# the object. For example, a data frame stores its row and column names as attributes. 
+# Data frames also store their class, "data.frame", as an attribute.
+
+# R comes with many helper functions that let you set and access the most common attributes 
+# used in R. You’ve already met the names, dim, and class functions, which each work with an
+# eponymously named attribute. However, R also has row.names, levels, and many other 
+# attribute-based helper functions. You can use any of these functions to retrieve an 
+# attribute’s value:
+
+# You can add any general attribute to an object with attr; you can also use attr to look up
+# the value of any attribute of an object. Let’s see how this works with one_play, the result
+# of playing our slot machine one time:
+
+play <- function() {
+  symbols <- get_symbols()
+  print(symbols)
+  score(symbols)
+}
+
+one_play <- play()
+
+attributes(one_play)
+
+# attr takes two arguments: an R object and the name of an attribute (as a character string).
+# To give the R object an attribute of the specified name, save a value to the output of attr.
+# Let’s give one_play an attribute named symbols that contains a vector of character strings:
+
+attr(one_play, "symbols") <- c("B", "0", "B")
+
+attributes(one_play)
+
+# Exercise 10.1 (Add an Attribute) Modify play to return a prize that contains the symbols 
+# associated with it as an attribute named symbols. Remove the redundant call to print(symbols):
+
+play <- function() {
+  symbols <- get_symbols()
+  prize <- score(symbols)
+  attr(prize,"symbols") <- symbols
+  prize
+}
+
+play()
+
+two_play <- play()
+
+two_play
+
+attr(play,"simbols") <- get_symbols()
+
+
+
+score <- function (symbols) {
 # Identify case
 same <- symbols[1] == symbols[2] && symbols[1] == symbols[3]
 bars <- symbols %in% c("B", "BBB", "BB")
@@ -243,7 +307,7 @@ prize * 2 ^ diamonts
 
 # count diamonds <6>
 # double the prize if necessary <8>
-
+}
 
 
 
