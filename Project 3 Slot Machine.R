@@ -235,7 +235,7 @@ play <- function() {
   attr(prize,"symbols") <- symbols
   prize
 }
-
+  
 play()
 
 two_play <- play()
@@ -244,7 +244,76 @@ two_play
 
 attr(play,"simbols") <- get_symbols()
 
+# You can also generate a prize and set its attributes in one step with the structure function. 
+# structure creates an object with a set of attributes. 
 
+play <- function() {
+  symbols <- get_symbols()
+  structure(score(symbols), symbols = symbols)
+}
+
+three_play <- play()
+three_play
+
+slot_display <- function(prize){
+  
+  # extract symbols
+  symbols <- attr(prize, "symbols")
+  
+  # collapse symbols into single string
+  symbols <- paste(symbols, collapse = " ")
+  
+  # combine symbol with prize as a character string
+  # \n is special escape sequence for a new line (i.e. return or enter)
+  string <- paste(symbols, prize, sep = "\n$")
+  
+  # display character string in console without quotes
+  cat(string)
+}
+
+slot_display(one_play)
+
+# The last line of slot_display calls cat on the new string. cat is like print; 
+# it displays its input at the command line. However, cat does not surround its output 
+# with quotation marks. cat also replaces every \n with a new line or line break. The 
+# result is what we see.
+
+# You can use slot_display to manually clean up the output of play:
+
+slot_display(play())
+
+# 10.3 Generic Functions
+
+# R calls print each time it displays a result in your console window.
+
+print(pi)
+
+
+# 10.4 Methods
+
+methods(print)
+
+# 10.4.1 Method Dispatch
+
+# When UseMethod needs to call a method, it searches for an R function with the correct 
+# S3-style name. The function does not have to be special in any way; it just needs to 
+# have the correct name.
+
+# 10.5 Classes
+
+methods(class = "factor")
+
+# 10.6 S3 and Debugging
+
+# S3 can be annoying if you are trying to understand R functions. It is difficult to tell
+# what a function does if its code body contains a call to UseMethod. Now that you know
+# that UseMethod calls a class-specific method, you can search for and examine the method
+# directly. It will be a function whose name follows the <function.class> syntax, or possibly
+# <function.default>. You can also use the methods function to see what methods are associated
+# with a function or a class.
+
+# R’s S3 system is more helpful for the tasks of computer science than the tasks of data science,
+# but understanding S3 can help you troubleshoot your work in R as a data scientist.
 
 score <- function (symbols) {
 # Identify case
