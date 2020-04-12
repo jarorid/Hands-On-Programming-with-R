@@ -315,11 +315,123 @@ methods(class = "factor")
 # R’s S3 system is more helpful for the tasks of computer science than the tasks of data science,
 # but understanding S3 can help you troubleshoot your work in R as a data scientist.
 
+# 11 Loops
+
+# 11.1 Expected Values
+
+# The expected value of a random event is a type of weighted average; it is the sum of each 
+# possible outcome of the event, weighted by the probability that each outcome occurs
+
+# Notice that we did the same three things to calculate both of these expected values. We have:
+
+# Listed out all of the possible outcomes
+# Determined the value of each outcome (here just the value of the die)
+# Calculated the probability that each outcome occurred
+
+# 11.2 expand.grid
+
+# The expand.grid function in R provides a quick way to write out every combination of the
+# elements in n vectors. For example, you can list every combination of two dice. To do so, 
+# run expand.grid on two copies of die:
+
+rolls <- expand.grid(die,die)
+rolls
+
+# You can determine the value of each roll once you’ve made your list of outcomes. This will
+# be the sum of the two dice, which you can calculate using R’s element-wise execution:
+
+rolls$value <- rolls$Var1 + rolls$Var2
+head(rolls)
+
+# The probability that n independent, random events all occur is equal to the product of the
+# probabilities that each random event occurs.
+
+prob <- c("1" = 1/8, "2" = 1/8, "3" = 1/8, "4" = 1/8, "5" = 1/8, "6" = 3/8)
+
+# If you subset this table by rolls$Var1, you will get a vector of probabilities perfectly 
+# keyed to the values of Var1:
+
+# First, we can look up the probabilities of rolling the values in Var1:
+rolls$Var1
+prob[rolls$Var1]
+rolls$prob1 <- prob[rolls$Var1]
+# Second, we can look up the probabilities of rolling the values in Var2:
+rolls$prob2 <- prob[rolls$Var2]
+# Third, we can calculate the probability of rolling each combination by
+# multiplying prob1 by prob2:
+rolls$prob <- rolls$prob1 * rolls$prob2
+head(rolls)
+
+# It is easy to calculate the expected value now that we have each outcome, the value of each
+# outcome, and the probability of each outcome. The expected value will be the summation of 
+# the dice values multiplied by the dice probabilities:
+
+sum(rolls$value*rolls$prob)
+
+# If you are curious, the expected value of rolling a pair of fair dice is 7, which explains 
+# why 7 plays such a large role in dice games like craps.
+
+rolls_fair <- expand.grid(die,die)
+rolls_fair
+prob_fair <- c(1/6,1/6,1/6,1/6,1/6,1/6)
+rolls_fair$value <- rolls_fair$Var1 + rolls_fair$Var2
+rolls_fair$prob1 <- prob_fair[rolls_fair$Var1]
+rolls_fair$prob2 <- prob_fair[rolls_fair$Var2]
+rolls_fair$prob <- rolls_fair$prob1 * rolls_fair$prob2
+head(rolls_fair)
+# Expected value
+sum(rolls_fair$value*rolls_fair$prob)
+# Roll Probability roll equal seven
+sum(rolls_fair$prob[rolls_fair$value == 7])
+
+# Now that you’ve warmed up, let’s use our method to calculate the expected value of the slot
+# machine prize.
+
+machine <- expand.grid(symbols, symbols, symbols)
+prob_machine <- c(0.03, 0.03, 0.06, 0.1, 0.25, 0.01, 0.52)
+machine$prob1 <- prob_machine[machine$Var1]
+machine$prob2 <- prob_machine[machine$Var2]
+machine$prob3 <- prob_machine[machine$Var3]
+machine$prob <- machine$prob1 * machine$prob2 * machine$prob3
+#machine$prize <- score(machine[c(1:3)])
+head(machine)
+
+score(get_symbols())
+
+head(machine[c(1:3)])
+
+# Solution book version 
+
+combos <- expand.grid(wheel, wheel, wheel, stringsAsFactors = FALSE)
+prob <- c("DD" = 0.03, "7" = 0.03, "BBB" = 0.06, 
+          "BB" = 0.1, "B" = 0.25, "C" = 0.01, "0" = 0.52)
+combos$prob1 <- prob[combos$Var1]
+combos$prob2 <- prob[combos$Var2]
+combos$prob3 <- prob[combos$Var3]
+combos$prob <- combos$prob1 * combos$prob2 * combos$prob3
+head(combos)
+# The sum of the probabilities is one, which suggests that our math is correct:
+sum(combos$prob)
+
 score <- function (symbols) {
 # Identify case
 same <- symbols[1] == symbols[2] && symbols[1] == symbols[3]
 bars <- symbols %in% c("B", "BBB", "BB")
 
+# You only need to do one more thing before you can calculate the expected value: you must
+# determine the prize for each combination in combos. You can calculate the prize with score.
+# For example, we can calculate the prize for the first row of combos like this:
+
+symbols <- c(combos[1, 1], combos[1, 2], combos[1, 3])
+symbols
+
+score(symbols)
+
+# However there are 343 rows, which makes for tedious work if you plan to calculate the scores
+# manually. It will be quicker to automate this task and have R do it for you, which you can
+# do with a for loop.
+
+# 11.3 for Loops
 
 # Get prize
 # <1> - Test whether the symbols are three of a kind.
@@ -376,6 +488,7 @@ prize * 2 ^ diamonts
 
 # count diamonds <6>
 # double the prize if necessary <8>
+prize
 }
 
 
