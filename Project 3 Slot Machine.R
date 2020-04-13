@@ -412,6 +412,25 @@ combos$prob <- combos$prob1 * combos$prob2 * combos$prob3
 head(combos)
 # The sum of the probabilities is one, which suggests that our math is correct:
 sum(combos$prob)
+# Let’s use a for loop to calculate the prize for each row in combos. To begin, 
+# create a new column in combos to store the results of the for loop:
+
+combos$prize <- NA
+
+for (i in 1:nrow(combos)){
+  symbols <- c(combos[i,1],combos[i,2], combos[i,3])
+  combos$prize[i] <- score(symbols)
+}
+
+head(combos)
+
+# We’re now ready to calculate the expected value of the prize. The expected value is the
+# sum of combos$prize weighted by combos$prob. This is also the payout rate of the slot machine:
+
+sum(combos$prize * combos$prob)
+
+# We’re now ready to calculate the expected value of the prize. The expected value is the
+# sum of combos$prize weighted by combos$prob. This is also the payout rate of the slot machine:
 
 score <- function (symbols) {
 # Identify case
@@ -433,62 +452,97 @@ score(symbols)
 
 # 11.3 for Loops
 
-# Get prize
-# <1> - Test whether the symbols are three of a kind.
-if (same){
-  print ('The symbols are same')
-  payouts <- c("DD" = 100, "7" = 80, "BBB" = 40, "BB" = 25, 
-               "B" = 10, "C" = 10, "0" = 0)
-  prize <- unname(payouts[symbols[1]])
+# A for loop repeats a chunk of code many times, once for each element in a set of input. for
+# loops provide a way to tell R, “Do this for every value of that.” In R syntax, this looks like:
+  
+#  for (value in that) {
+#    this
+#  }
+
+# Choose your symbols carefully
+
+# R will run your loop in whichever environment you call it from. This is bad news if your loop
+# uses object names that already exist in the environment. Your loop will overwrite the existing
+# objects with the objects that it creates. This applies to the value symbol as well.
+
+# 11.4 while Loops
+
+# R has two companions to the for loop: the while loop and the repeat loop. A while loop reruns
+# a chunk while a certain condition remains TRUE. To create a while loop, follow while by a 
+# condition and a chunk of code, like this:
+
+# while (condition) {
+#   code
+# }
+
+plays_till_broke <- function(start_with) {
+  cash <- start_with
+  n <- 0
+  while (cash > 0) {
+    cash <- cash - 1 + play()
+    n <- n + 1
+  }
+  n
 }
 
-# <2> - Test whether the symbols are all bars.
-if (all(bars)){
-  print ('The symbols are all bars')
-  }
+plays_till_broke(100)
 
-# <3> - Look up the prize for three of a kind based on the common symbol.
-if (same) {
-  symbol <- symbols[1]
-  if (symbol == "DD") {
-    prize <- 800
-  } else if (symbol == "7") {
-    prize <- 80
-  } else if (symbol == "BBB") {
-    prize <- 40
-  } else if (symbol == "BB") {
+# 11.5 repeat Loops
+
+# repeat loops are even more basic than while loops. They will repeat a chunk of code until
+# you tell them to stop (by hitting Escape) or until they encounter the command break, 
+# which will stop the loop.
+
+
+plays_till_broke <- function(start_with) {
+  cash <- start_with
+  n <- 0
+  repeat {
+    cash <- cash - 1 + play()
+    n <- n + 1
+    if (cash <= 0) {
+      break
+    }
+  }
+  n
+}
+
+plays_till_broke(100)
+
+
+
+# Get prize
+score <- function(symbols) {
+  
+  diamonds <- sum(symbols == "DD")
+  cherries <- sum(symbols == "C")
+  
+  # identify case
+  # since diamonds are wild, only nondiamonds 
+  # matter for three of a kind and all bars
+  slots <- symbols[symbols != "DD"]
+  same <- length(unique(slots)) == 1
+  bars <- slots %in% c("B", "BB", "BBB")
+  
+  # assign prize
+  if (diamonds == 3) {
+    prize <- 100
+  } else if (same) {
+    payouts <- c("7" = 80, "BBB" = 40, "BB" = 25,
+                 "B" = 10, "C" = 10, "0" = 0)
+    prize <- unname(payouts[slots[1]])
+  } else if (all(bars)) {
     prize <- 5
-  } else if (symbol == "B") {
-    prize <- 10
-  } else if (symbol == "C") {
-    prize <- 10
-  } else if (symbol == "0") {
+  } else if (cherries > 0) {
+    # diamonds count as cherries
+    # so long as there is one real cherry
+    prize <- c(0, 2, 5)[cherries + diamonds + 1]
+  } else {
     prize <- 0
   }
-}
-# <4> - Assign a prize of $5.
-# <5> - Count the number of cherries.
-cherries <-(sum(symbols == 'C'))
-prize <- c(0,2,5)[cherries+1]
-# <6> - Count the number of diamonds.
-diamonts <-(sum(symbols == 'DD'))
-prize * 2 ^ diamonts
-# <7> - Calculate a prize based on the number of cherries.
-# <8> - Adjust the prize for diamonds.
-
-
-#if ( # Case 1: all the same <1>) {
-#  prize <- # look up the prize <3>
-#  } else if ( # Case 2: all bars <2> ) {
-#    prize <- # assign $5 <4>
-#    } else {
-      # count cherries <5>
-#      prize <- # calculate a prize <7>
-#    }
-
-# count diamonds <6>
-# double the prize if necessary <8>
-prize
+  
+  # double for each diamond
+  prize * 2^diamonds
 }
 
 
